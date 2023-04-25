@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+  <head>
+    <title>Pods Table</title>
+    <!-- Import jQuery library and DataTables CSS and JS files -->
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/jquery.dataTables.min.css' %}">
+    <script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+  </head>
+    <h1>{{ remote_system.name }} Pods</h1>
+    {% if pods %}
+      <table class="table" id="pods-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Namespace</th>
+            <th>Status</th>
+            <th>Restart Count</th>
+            <th>Memory Usage</th>
+            <th>CPU Usage</th> 
+          </tr>
+        </thead>
+        <tbody>
+          {% for pod in pods %}
+            <tr>
+              <td>{{ pod.name }}</td>
+              <td>{{ pod.namespace }}</td>
+              <td>{{ pod.status }}</td>
+              <td>{{ pod.restartCount }}</td>
+              <td>{{ pod.memoryUsage }}</td>
+              <td>{{ pod.cpuUsage }}</td> 
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="4">No pods found.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+
+    <script>
+  $(document).ready(function() {
+  // Get the table object
+  var table = $('#pods-table').DataTable({
+    // Sort by the "restartCount" column by default in descending order
+    order: [[5, 'desc']]
+  });
+  // Keep track of the last clicked column and its sorting order
+  var last_clicked_column = -1;
+  var last_clicked_order = 'asc';
+
+  // Add a click event listener to each column header
+  $('#pods-table th').click(function() {
+    // Get the column index
+    var column_index = $(this).index();
+
+    // Get the current sorting order for the column
+    var current_order = last_clicked_column === column_index ? (last_clicked_order === 'asc' ? 'desc' : 'asc') : 'asc';
+
+    // Sort the table by the selected column and order
+    table.order([column_index, current_order]).draw();
+
+    // Update the class of the clicked column header to indicate the current sorting order
+    $('#pods-table th').removeClass('sorting sorting_asc sorting_desc');
+    $(this).addClass(current_order === 'asc' ? 'sorting_asc' : 'sorting_desc');
+
+    // Update the last clicked column and its sorting order
+    last_clicked_column = column_index;
+    last_clicked_order = current_order;
+  });
+});
+    </script>
+  {% endblock %}

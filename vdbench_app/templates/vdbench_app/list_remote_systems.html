@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+  <h1 class="btn btn-dark">Vdbench Hosts</h1>
+  <div class="d-flex justify-content-between align-items-center">
+    <button class="btn btn-success" onclick="refreshPage()">Refresh</button>
+    <div id="spinner" style="display:none;">
+      <img src="{% static 'images/spinner1.gif' %}" alt="Loading..." width="60" height="60" />
+    </div>
+  </div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Server Name</th>
+        <th>Server IP</th>
+        <th>OS</th>
+        <th>Block Devices</th> 
+        <th>Configure</th> 
+        <th>Table</th> 
+        <th>Graph</th> 
+        <th>Start Instance</th> 
+        <th>Stop Instance</th> 
+      </tr>
+    </thead>
+    <tbody>
+      {% for system,data in context.items %}
+        <tr>
+          <td>{{ system.name }}</td>
+          <td>{{ system.server_address }}</td>
+          <td>{{ data.os }}</td>
+          <td>{{ data.total_devices}}</td> 
+          <td><a href="{% url 'config-vdbench' system.pk %}">Set Profile</a></td>
+          <td><a href="{% url 'vdbench-monitor' system.pk %}">View Stats</a></td> 
+          <td><a href="{% url 'vdbench-graph' system.pk %}">View Graph</a></td> 
+          <td><a href="{% url 'vdbench-start' system.pk %}">Start</a></td>
+          <td><a href="{% url 'vdbench-stop' system.pk %}">Stop</a></td>  
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="5">No remote systems found.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <a href="{% url 'add_remote_system' %}" class="btn btn-primary">Add Vdbench Client</a>
+  <script>
+    function refreshPage() {
+      document.getElementById('spinner').style.display = 'block';
+      location.reload();
+    }
+    setInterval(function() {
+      location.reload();
+    }, 30000);
+  </script>
+{% endblock %}
+

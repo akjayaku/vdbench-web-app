@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Delete Remote System "{{ remote_system.name }}"</h1>
+
+  <p>Are you sure you want to delete "{{ remote_system.name }}"?</p>
+
+  <form action="{% url 'delete_remote_system' pk=remote_system.pk %}" method="post">
+    {% csrf_token %}
+    <input type="submit" value="Delete">
+    <a href="{% url 'modify_remote_systems' %}">Cancel</a>
+  </form>
+{% endblock %}
+

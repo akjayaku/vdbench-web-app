@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<head>
+  <!-- Import jQuery library and DataTables CSS and JS files -->
+  <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+  <script src="{% static 'js/plotly-latest.min.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'css/jquery.dataTables.min.css' %}">
+  <script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+</head>
+    <title>Vdbench Hosts</title>
+    <style>
+        #device-list {
+            position: absolute;
+            left: 5%;
+            width: 20%;
+        }
+        #system-data {
+            margin-left: 20%;
+            width: 80%;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        li {
+            margin: 5px 0;
+        }
+    </style>
+<body>
+    <div id="device-list">
+        <h3 class="btn btn-dark"  style="width: 150px;" >Hosts</h3>
+        <ul>
+            {% for device in devices %}
+            <li>
+                <form method="post" action="{% url 'device-home' pk=device.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="pk" value="{{ device.id }}">
+                    <button class="btn btn-success"  style="width: 150px;" type="submit">{{ device.server_address }}</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div id="system-data">
+        <h3 class="btn btn-dark">System Data</h3>
+        {% if selected_device %}
+        <h3 class="btn btn-dark"  style="width: 912px; height:40px;">Showing data for device {{ selected_device.server_address }}</h3>
+        <table class="table">
+            <thead>
+              <tr>
+                <th>Host Name</th>
+                <th>Server IP</th>
+                <th>OS</th>
+                <th>Block Devices</th> 
+                <th>Configure</th> 
+                <th>Table View</th> 
+                <th>Graph View</th> 
+                <th>Start Instance</th> 
+                <th>Stop Instance</th> 
+              </tr>
+            </thead>
+            <tbody>
+              {% for system,data in context.items %}
+                <tr>
+                  <td>{{ system.name }}</td>
+                  <td>{{ system.server_address }}</td>
+                  <td>{{ data.os }}</td>
+                  <td>{{ data.total_devices }}</td> 
+                  <td><a class="btn btn-warning" href="{% url 'config-vdbench' system.pk %}">Profile</a></td>
+                  <td><a class="btn btn-primary" href="{% url 'vdbench-monitor' system.pk %}">Stats</a></td> 
+                  <td><a class="btn btn-info" href="{% url 'vdbench-graph' system.pk %}">Graph</a></td> 
+                  <td><a class="btn btn-success" href="{% url 'vdbench-start' system.pk %}">Start</a></td>
+                  <td><a class="btn btn-danger" href="{% url 'vdbench-stop' system.pk %}">Stop</a></td>  
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="5">No remote systems found.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>IOPs</th>
+                <th>Throughput MBps</th>
+                <th>IO Size KB</th>
+                <th>Read ECT ms</th> 
+                <th>Write ECT ms</th> 
+                <th>Queue Depth</th> 
+                <th>Read %</th> 
+                <th>Write %</th> 
+                <th>CPU Usage %</th> 
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{ metrics.iorate }}</td>
+                <td>{{ metrics.throughput }}</td>
+                <td>{{ metrics.iosize }}</td>
+                <td>{{ metrics.readect }}</td>
+                <td>{{ metrics.writeect }}</td>
+                <td>{{ metrics.queue }}</td>
+                <td>{{ metrics.readpct }}</td> 
+                <td>{{ metrics.writepct }}</td>
+                <td>{{ metrics.cpu }}</td>
+              </tr>
+            </tbody>
+          </table> 
+        {% else %}
+        <h3 class="btn btn-dark"  style="width: 912px; height:40px;">Select a host to view more info.....</h3>
+        {% endif %}
+    </div>
+</body>
+{% endblock %}

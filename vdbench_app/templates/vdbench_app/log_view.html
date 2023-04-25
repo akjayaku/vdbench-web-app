@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div>
+<a href="{% url 'home' %}" class="btn btn-primary">Home</a>
+</div>
+<h1>Log view</h1>
+    <div id="output"></div>
+    <script>
+        // Define a function to append the data to the output element
+        function appendData(data) {
+            var output = document.getElementById('output');
+            output.innerHTML += data + '<br>';
+            output.scrollTop = output.scrollHeight;
+        }
+
+        // Use EventSource to receive the streaming response from the server
+        var source = new EventSource("{% url 'log_view' pk %}");
+
+        source.onmessage = function(event) {
+            // Append each new line of data to the output element
+            appendData(event.data);
+        };
+
+        // Auto refresh every 5 seconds
+        setInterval(function(){
+            source.close(); // Close the existing connection
+            source = new EventSource("{% url 'log_view' pk %}"); // Open a new connection
+            source.onmessage = function(event) {
+                appendData(event.data);
+            };
+        }, 5000); // Refresh every 5 seconds
+    </script>
+{% endblock %}

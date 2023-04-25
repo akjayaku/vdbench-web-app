@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<head>
+    <title>Log Viewer</title>
+</head>
+<body>
+    <pre id="log"></pre>
+
+    <script>
+        var log = document.getElementById("log");
+        var socket = new WebSocket("ws://" + window.location.host + "/log/");
+
+        socket.onmessage = function(event) {
+            log.innerText += event.data;
+        };
+    </script>
+</body>
+{% endblock %}

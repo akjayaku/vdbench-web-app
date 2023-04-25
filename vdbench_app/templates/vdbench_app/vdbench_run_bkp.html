@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-8 offset-md-2">
+      <h1 class="mb-4">Cuurent Vdbench traffic coniguartion on {{ system }}</h1>
+      {% if config %}
+      <div id="success-message" class="alert alert-success">
+        {% for item in config %}
+          <li>{{ item }}</li>
+        {% endfor %}
+      <div>
+      {% endif %}
+      <form method="POST" action="{% url 'vdbench-start' pk=pk %}">
+        {% csrf_token %}
+        <input type="hidden" name="pk" value="{{ pk }}">
+        <button class="btn btn-success" type="submit">Start</button>
+      </form>
+      {% if status %}
+      <div class="alert alert-success" role="alert">
+        Vdbench has been started on {{ system }}.
+      </div>
+     {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

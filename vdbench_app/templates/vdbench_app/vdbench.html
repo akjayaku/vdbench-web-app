@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+  /* Inline CSS for form */
+  #my-form .form-group {
+    margin-bottom: 20px;
+  }
+
+  #my-form .form-check-label {
+    margin-left: 10px;
+  }
+
+  #my-form .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+  }
+
+  #my-form .btn-primary:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
+  }
+
+  /* Inline CSS for success message */
+  #success-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    /* width: 500px; /* set the width to 500 pixels */
+    /* height: 200px; /* set the height to 200 pixels */
+  }
+  }
+</style>
+<div class="d-flex justify-content-between align-items-center">
+  <h2 class="btn btn-dark mb-0">Pick a profile for {{ system }}</h2>
+</div>
+<form method="post" id="my-form" class="form-group">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button class="btn btn-success" type="submit">Save</button>
+</form>
+{% if status %}
+  <div id="success-message" class="alert alert-success">
+    {% for item in filecontent %}
+      <li>{{ item }}</li>
+    {% endfor %}
+    <div>
+    <b class="btn btn-dark">Pushed the config successfully to {{ system }}</b>
+    </div>
+    <div>
+    <form method="post" id="redirect-form" action="{% url 'device-home' pk=pk %}">
+        {% csrf_token %}
+        <input type="hidden" name="pk" value="{{ pk }}">
+        <!-- Include additional hidden fields as needed -->
+    <button class="btn btn-success" type="submit">Continue...</button>
+    </form> 
+    </div>
+</div>
+  <script>
+    // Hide the form after submission
+    document.getElementById('my-form').style.display = 'none';
+
+    // Show the success message after 1 second
+    setTimeout(function() {
+      document.getElementById('success-message').style.display = 'block';
+    }, 1000);
+
+    // Submit the redirect form after 30 seconds
+    setTimeout(function() {
+      document.getElementById('redirect-form').submit();
+    }, 30000);
+  </script>
+{% endif %}
+<form method="post" id="redirect-form" action="{% url 'device-home' pk=pk %}">
+  {% csrf_token %}
+  <input type="hidden" name="pk" value="{{ pk }}">
+  <!-- Include additional hidden fields as needed -->
+</form>
+{% endblock %}

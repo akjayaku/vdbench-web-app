@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<style>
+  /* Inline CSS for form */
+  #my-form .form-group {
+    margin-bottom: 20px;
+  }
+
+  #my-form .form-check-label {
+    margin-left: 10px;
+  }
+
+  #my-form .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+  }
+
+  #my-form .btn-primary:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
+  }
+</style>
+<div class="d-flex justify-content-between align-items-center">
+  <h2 class="btn btn-dark mb-0">Pick a profile for {{ system }}</h2>
+</div>
+<form method="post" id= "my-form" class="form-group">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button class="btn btn-success" type="submit">Save</button>
+</form>
+{% if status %}
+  <div id="success-message" class="alert alert-success">
+    <b class="btn btn-success">Config file pushed successfully</b>
+  </div>
+  <form method="post" id="redirect-form" action="{% url 'device-home' pk=pk %}">
+    {% csrf_token %}
+    <input type="hidden" name="pk" value="{{ pk }}">
+    <!-- Include additional hidden fields as needed -->
+  </form>
+  <script>
+    // Submit the redirect form after 3 seconds
+    setTimeout(function() {
+      document.getElementById('redirect-form').submit();
+    }, 3000);
+
+    // Hide the success message after 5 seconds
+    setTimeout(function() {
+      document.getElementById('success-message').style.display = 'none';
+    }, 5000);
+  </script>
+{% endif %}
+{% endblock %}

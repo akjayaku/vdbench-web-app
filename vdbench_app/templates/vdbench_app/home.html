@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<head>
+  <!-- Import jQuery library and DataTables CSS and JS files -->
+  <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+  <script src="{% static 'js/plotly-latest.min.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'css/jquery.dataTables.min.css' %}">
+  <script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+</head>
+    <title>Vdbench Hosts</title>
+    <style>
+        #device-list {
+            position: absolute;
+            left: 2%;
+            width: 20%;
+        }
+        #system-data {
+            margin-left: 20%;
+            width: 80%;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        li {
+            margin: 5px 0;
+        }
+    </style>
+<body>
+    <div id="device-list">
+      
+        <img src="{% static 'images/cloud.png' %}" width="150px" height="80" alt="Hosts">
+        <ul>
+            {% for device in devices %}
+            <li>
+                <form method="post" action="{% url 'device-home' pk=device.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="pk" value="{{ device.id }}">
+                    {% if pk == device.id %}
+                        <button class="btn btn-info"  style="width: 150px;" type="submit">{{ device.server_address }}</button>
+                        <button class="btn btn-white style="width: 150px;" onclick="refreshPage()">
+                          <img src="{% static 'images/refreshwing.png' %}" alt="Refresh" title="Refresh" width="20" height="20">
+                          <span id="spinner" style="display:none;">Loading</span>
+                        </button>
+                    {% else %}
+                        <button class="btn btn-secondary"  style="width: 150px;" type="submit">{{ device.server_address }}</button>
+                    {% endif %}
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div id="system-data" style="margin-left: 3.5cm; float: center;">
+        {% if selected_device %}
+        <div>
+          <a class="btn" style="background-color: rgba(166, 77, 174, 0.5); width: 150px;" href="{% url 'config-vdbench' pk %}">Traffic Profile</a> 
+          <form style="display: inline-block;" method="post" action="{% url 'vdbench-start' pk=pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="pk" value="{{ pk }}">
+            <button class="btn" style="background-color: rgba(11, 104, 19, 0.536); width: 150px;" type="submit">Start traffic</button>
+          </form> 
+          <form style="display: inline-block;" method="post" action="{% url 'vdbench-stop' pk=pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="pk" value="{{ pk }}">
+            <button class="btn" style="background-color: rgba(208, 73, 73, 0.961); width: 150px;" type="submit">Stop traffic</button>
+          </form>
+        </div>
+        <table class="table">
+            <thead>
+              <tr>
+                <th>Host Name</th>
+                <th>Server IP</th>
+                <th>OS</th>
+                <th>Block Devices</th> 
+                <th>Status</th> 
+                <th>Instance</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for system,data in context.items %}
+                <tr>
+                  <td>{{ system.name }}</td>
+                  <td>{{ system.server_address }}</td>
+                  <td>{{ data.os }}</td>
+                  <td>{{ data.total_devices }}</td> 
+                  {% if vdstatus == "Not Running" %}
+                  <td style="color: red; font-weight: bold;">{{ vdstatus }}</td>
+                  {% else %}
+                  <td style="color: green; font-weight: bold;">{{ vdstatus }}</td> 
+                  {% endif %} 
+                  <td>{{ instances }}</td>  
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="5">No remote systems found.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+      
+          <table class="table">
+            <thead>
+              <tr>
+                <th>IOPs</th>
+                <th>Throughput</th>
+                <th>IO Size</th>
+                <th>Read Response</th> 
+                <th>Write Response</th> 
+                <th>Queue Depth</th> 
+                <th>Read %</th> 
+                <th>Write %</th> 
+                <th>CPU Usage %</th> 
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{ metrics.iorate }}</td>
+                <td>{{ metrics.throughput }} MBps</td>
+                <td>{{ metrics.iosize }} kB</td>
+                <td>{{ metrics.readect }} ms</td>
+                <td>{{ metrics.writeect }} ms</td>
+                <td>{{ metrics.queue }}</td>
+                <td>{{ metrics.readpct }}</td> 
+                <td>{{ metrics.writepct }}</td>
+                <td>{{ metrics.cpu }}</td>
+              </tr>
+            </tbody>
+          </table> 
+        {% endif %}
+    </div>
+      <div id="readect"  style="margin-left: 2cm; width: 600px; height: 400px; float: left;"></div>
+      <div id="writeect"  style="width: 600px; height: 400px; float: right;"></div>
+      <script>
+        var x = {{ graph.timestamp|safe }};
+        var y = {{ graph.rdect|safe }};
+        var wry = {{ graph.wrect|safe }}; 
+        var trace = {
+          x: x,
+          y: y,
+          mode: 'lines',
+          line: {
+            width: 3,
+          }
+        };
+        var trace2 = {
+          x: x,
+          y: wry,
+          mode: 'lines',
+          line: {
+            color: 'MediumVioletRed',
+            width: 3,
+          }
+        }; 
+        var layout = {
+          title: 'Read Response',
+          xaxis: {
+            title: 'Time'
+          },
+          yaxis: {
+            title: 'Response in ms'
+          }
+        };
+        var layout2 = {
+          title: 'Write Response',
+          xaxis: {
+            title: 'Time'
+          },
+          yaxis: {
+            title: 'Response in ms'
+          }
+        }; 
+        
+        var data1 = [trace];
+        var data2 = [trace2]
+        Plotly.newPlot('readect', data1, layout);
+        
+        Plotly.newPlot('writeect', data2, layout2); 
+      function refreshPage() {
+        document.getElementById('spinner').style.display = 'block';
+        location.reload();
+      }
+      function refreshPage1() {
+  var spinner = document.getElementById("spinner");
+  var loading = document.getElementById("loading");
+  spinner.style.display = "none";
+  loading.style.display = "inline";
+  setTimeout(function() {
+    location.reload();
+  }, 1000); // refresh after 1 second (adjust as needed)
+}
+      </script>
+</body>
+{% endblock %}

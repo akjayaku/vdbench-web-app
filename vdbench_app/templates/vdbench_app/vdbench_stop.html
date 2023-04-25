@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if status %}
+    <div class="alert alert-success" role="alert">
+    Vdbench has been stoped on {{ system }}.
+    </div>
+  {% endif %}
+<form method="post" id="redirect-form" action="{% url 'device-home' pk=pk %}">
+  {% csrf_token %}
+    <input type="hidden" name="pk" value="{{ pk }}">
+    <!-- Include additional hidden fields as needed -->
+  </form>
+<script>
+  // Show the success message after 1 second
+  setTimeout(function() {
+    document.getElementById('success-message').style.display = 'block';
+  }, 0);
+
+  // Submit the redirect form after 30 seconds
+  setTimeout(function() {
+    document.getElementById('redirect-form').submit();
+  }, 5);
+</script>
+{% endblock %}

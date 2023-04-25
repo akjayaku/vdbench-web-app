@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Modify Hosts</h1>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Host Name</th>
+        <th>Host IP</th>
+        <th>Update</th>
+        <th>Remove</th> 
+      </tr>
+    </thead>
+    <tbody>
+      {% for system in remote_systems %}
+        <tr>
+          <td>{{ system.name }}</td>
+          <td>{{ system.server_address }}</td>
+          <td><a class="btn btn-secondary"  style="width: 80px; height:40px;" href="{% url 'edit_remote_system' system.pk %}">Edit</a></td>
+          <td><a class="btn btn-warning"  style="width: 80px; height:40px;" href="{% url 'delete_remote_system' system.pk %}">Delete</a></td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="5">No remote systems found.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <a href="{% url 'add_remote_system' %}" class="btn btn-primary">Add new vdbench host</a>
+{% endblock %}
+

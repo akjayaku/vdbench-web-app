@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Log view</title>
+</head>
+<body>
+    <h1>Log view</h1>
+    <div id="output"></div>
+
+    <script>
+        // Define a function to append the data to the output element
+        function appendData(data) {
+            var output = document.getElementById('output');
+            output.innerHTML += data + '<br>';
+            output.scrollTop = output.scrollHeight;
+        }
+
+        // Use EventSource to receive the streaming response from the server
+        var source = new EventSource("{% url 'log_view' pk %}");
+
+        source.onmessage = function(event) {
+            // Append each new line of data to the output element
+            appendData(event.data);
+        };
+    </script>
+</body>
+</html>

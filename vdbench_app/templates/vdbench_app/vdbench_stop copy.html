@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="system-data" style="margin-left: 3.5cm; float: center;">
+      <h1>Stop Vdbench on {{ system }}</h1>
+      <form method="POST" action="{% url 'vdbench-stop' pk=pk %}">
+        {% csrf_token %}
+        <input type="hidden" name="pk" value="{{ pk }}">
+        <button class="btn-danger" type="submit">Stop</button>
+      </form>
+</div>
+{% if status %}
+    <div id="success-message" class="alert alert-success" role="alert">
+          Vdbench has been stoped on {{ system }} {{ pk }}.
+    </div>
+  <form method="post" id="redirect-form" action="{% url 'device-home' pk=pk %}">
+  {% csrf_token %}
+    <input type="hidden" name="pk" value="{{ pk }}">
+    <!-- Include additional hidden fields as needed -->
+  </form>
+<script>
+
+  // Show the success message after 1 second
+  setTimeout(function() {
+    document.getElementById('success-message').style.display = 'block';
+  }, 0);
+
+  // Submit the redirect form after 30 seconds
+  setTimeout(function() {
+    document.getElementById('redirect-form').submit();
+  }, 5);
+</script>
+{% endif %}
+{% endblock %}

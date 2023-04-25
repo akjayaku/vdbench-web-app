@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>VDBench Monitor</h1>
+    <p>Status: <span id="status"> {{ status }}</span></p>
+    <p>Throughput: <span id="throughput">{{ throughput }}</span></p>
+    <p>IOPs: <span id="iorate">{{ iorate }}</span></p> 
+    <p>Average Read ECT: <span id="readect">{{ readect }}</span></p>
+    <p>Average Write ECT: <span id="writeect">{{ writeect }}</span></p>
+    <p>Average IO Size: <span id="iosize">{{ iosize }}</span></p>  
+    <script>
+        setInterval(function(){
+            location.reload();
+        }, 5000); // refresh every 5 seconds
+    </script>
+{% endblock %}

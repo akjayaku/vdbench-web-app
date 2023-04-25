@@ -1,0 +1,12 @@
+<!-- login.html -->
+
+{% extends 'loginbase.html' %}
+{% load static %}
+{% block content %}
+<img src="{% static 'images/cisco3.png' %}" width="150px" height="60" alt="Cisco">
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn" style="background-color: rgba(8, 161, 244, 0.94); width: 150px;" type="submit">Log In</button>
+  </form>
+{% endblock %}

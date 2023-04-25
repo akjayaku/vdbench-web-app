@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<head>
+    <title>Metrics</title>
+    <!-- Import jQuery library and DataTables CSS and JS files -->
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/jquery.dataTables.min.css' %}">
+    <script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+  </head>
+    <h1> Vdbench client {{ server_ip }} live stat</h1>
+    <div class="d-flex justify-content-between align-items-center">
+        <button class="btn btn-primary" onclick="refreshPage()">Refresh</button>
+        <div id="spinner" style="display:none;">
+          <img src="{% static 'images/spinner1.gif' %}" alt="Loading..." width="60" height="60" />
+        </div>
+      </div>
+    {% if server_ip %}
+      <table class="table" id="metrics-table">
+        <thead>
+          <tr>
+            <th>IOPs</th>
+            <th>Throughput MBps</th>
+            <th>IO Size KB</th>
+            <th>Read ECT ms</th>
+            <th>Write ECT ms</th>
+            <th>Queue Depth</th> 
+            <th>Read %</th>
+            <th>Write %</th> 
+            <th>CPU Usage %</th> 
+          </tr>
+        </thead>
+        <tbody>
+            <tr>
+              <td>{{ iorate }}</td>
+              <td>{{ throughput }}</td>
+              <td>{{ iosize }}</td>
+              <td>{{ readect }}</td>
+              <td>{{ writeect }}</td>
+              <td>{{ queue }}</td>
+              <td>{{ readpct }}</td> 
+              <td>{{ writepct }}</td>
+              <td>{{ cpu }}</td>
+            </tr>
+        </tbody>
+      </table>
+    {% endif %}
+
+    <script>
+    function refreshPage() {
+      document.getElementById('spinner').style.display = 'block';
+      location.reload();
+    }
+    setInterval(function() {
+      location.reload();
+    }, 30000);
+  $(document).ready(function() {
+  // Get the table object
+  var table = $('#metrics-table').DataTable({
+    // Sort by the "restartCount" column by default in descending order
+    order: [[3, 'desc']]
+  });
+
+  // Keep track of the last clicked column and its sorting order
+  var last_clicked_column = -1;
+  var last_clicked_order = 'asc';
+
+  // Add a click event listener to each column header
+  $('#metrics-table th').click(function() {
+    // Get the column index
+    var column_index = $(this).index();
+
+    // Get the current sorting order for the column
+    var current_order = last_clicked_column === column_index ? (last_clicked_order === 'asc' ? 'desc' : 'asc') : 'asc';
+
+    // Sort the table by the selected column and order
+    table.order([column_index, current_order]).draw();
+
+    // Update the class of the clicked column header to indicate the current sorting order
+    $('#metrics-table th').removeClass('sorting sorting_asc sorting_desc');
+    $(this).addClass(current_order === 'asc' ? 'sorting_asc' : 'sorting_desc');
+
+    // Update the last clicked column and its sorting order
+    last_clicked_column = column_index;
+    last_clicked_order = current_order;
+  });
+});
+    </script>
+  {% endblock %}

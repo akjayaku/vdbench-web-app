@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<head>
+    <script src="{% static 'js/plotly-latest.min.js' %}"></script>
+  </head>
+  <div class="d-flex justify-content-between align-items-center">
+    <button class="btn btn-success" onclick="refreshPage()">Refresh {{server_ip}}</button>
+    <div id="spinner" style="display:none;">
+      <img src="{% static 'images/spinner1.gif' %}" alt="Loading..." width="60" height="60" />
+    </div>
+  </div>
+    <div id="readect"></div>
+    <div id="writeect"></div>
+    <script>
+      var x = {{ timestamp|safe }};
+      var y = {{ rdect|safe }};
+      var wry = {{ wrect|safe }}; 
+      var trace = {
+        x: x,
+        y: y,
+        mode: 'lines',
+        line: {
+          width: 3,
+        }
+      };
+      var trace2 = {
+        x: x,
+        y: wry,
+        mode: 'lines',
+        line: {
+          color: 'MediumVioletRed',
+          width: 3,
+        }
+      }; 
+      var layout = {
+        title: 'Read Response',
+        xaxis: {
+          title: 'Time'
+        },
+        yaxis: {
+          title: 'Response in ms'
+        }
+      };
+      var layout2 = {
+        title: 'Write Response',
+        xaxis: {
+          title: 'Time'
+        },
+        yaxis: {
+          title: 'Response in ms'
+        }
+      }; 
+      
+      var data1 = [trace];
+      var data2 = [trace2]
+      Plotly.newPlot('readect', data1, layout);
+      
+      Plotly.newPlot('writeect', data2, layout2); 
+    function refreshPage() {
+      document.getElementById('spinner').style.display = 'block';
+      location.reload();
+    }
+    setInterval(function() {
+      location.reload();
+    }, 30000);
+    </script>
+{% endblock %}

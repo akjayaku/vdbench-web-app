@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>{{ system.name }} Pods</h1>
+  {% if pods %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Namespace</th>
+          <th>Status</th>
+          <th>Restart Count</th>
+          <th>Memory Usage</th>
+          <th>CPU Usage</th> 
+        </tr>
+      </thead>
+      <tbody>
+        {% for pod in pods %}
+          <tr>
+            <td>{{ pod.name }}</td>
+            <td>{{ pod.namespace }}</td>
+            <td>{{ pod.status }}</td>
+            <td>{{ pod.restartCount }}</td>
+            <td>{{ pod.memoryUsage }}</td>
+            <td>{{ pod.cpuUsage }}</td> 
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="4">No pods found.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No pods found on this remote system.</p>
+  {% endif %}
+{% endblock %}
+
